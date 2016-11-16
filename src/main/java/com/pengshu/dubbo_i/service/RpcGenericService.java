@@ -7,7 +7,7 @@ import java.util.Map;
 import com.alibaba.dubbo.config.ReferenceConfig;
 import com.alibaba.dubbo.rpc.service.GenericService;
 import com.google.common.base.Strings;
-import com.pengshu.dubbo_i.conf.Configuration;
+import com.pengshu.dubbo_i.conf.DubboI_Configuration;
 import com.pengshu.dubbo_i.exception.RpcServiceException;
 
 /**
@@ -27,7 +27,10 @@ public class RpcGenericService {
 		this.genericService = genericService;
 	}
 	
-	public static RpcGenericService Create(String serviceName, String version) {
+	public static RpcGenericService Create(String serviceName, String version) throws RpcServiceException {
+		if (DubboI_Configuration.instance == null) {
+			throw new RpcServiceException("还未初始化Dubbo配置");
+		}
 		if (Strings.isNullOrEmpty(serviceName) || Strings.isNullOrEmpty(version)) {
 			return null;
 		}
@@ -37,9 +40,9 @@ public class RpcGenericService {
 			reference = references.get(k);
 		} else {
 			reference = new ReferenceConfig<GenericService>(); // 该实例很重量，里面封装了所有与注册中心及服务提供方连接，请缓存
-			reference.setApplication(Configuration.application);
-			reference.setRegistry(Configuration.registry);
-			reference.setProtocol(Configuration.PROTOCOL_DUBBO);
+			reference.setApplication(DubboI_Configuration.instance.application);
+			reference.setRegistry(DubboI_Configuration.instance.registry);
+			reference.setProtocol(DubboI_Configuration.PROTOCOL_DUBBO);
 			reference.setInterface(serviceName); // 弱类型接口名 
 			reference.setVersion(version); 
 			reference.setGeneric(true); // 声明为泛化接口
