@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 import com.alibaba.dubbo.config.ApplicationConfig;
 import com.alibaba.dubbo.config.ProtocolConfig;
 import com.alibaba.dubbo.config.RegistryConfig;
+import com.pengshu.dubbo_i.server.RpcServer;
 import com.pengshu.dubbo_i.util.NativePath;
 
 /**
@@ -147,6 +148,18 @@ public class DubboI_Configuration {
 		return this;
 	}
 	
+	/**
+	 * 非spring方式使用dubbo服务，手动注册指定包下的服务
+	 * @param packageName
+	 */
+	public void registerRpcServer(String packageName) {
+		RpcServer.scanService(packageName);
+	}
+	
+	/**
+	 * 获取本地ip
+	 * @return
+	 */
     private static String getLocalhostIp() {
         String ip = "未知";
         try{
@@ -167,5 +180,5 @@ public class DubboI_Configuration {
             return ip;
         }
     }
-	
+    
 }

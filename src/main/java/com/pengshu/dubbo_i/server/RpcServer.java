@@ -1,12 +1,17 @@
 package com.pengshu.dubbo_i.server;
 
+import java.util.List;
+
+import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.config.spring.ServiceBean;
+import com.google.common.base.Strings;
 import com.pengshu.dubbo_i.conf.DubboI_Configuration;
+import com.pengshu.dubbo_i.util.class_scan.DefaultClassScanner;
 
 /**
  * Rpc服务加载、注册
@@ -15,6 +20,8 @@ import com.pengshu.dubbo_i.conf.DubboI_Configuration;
  */
 @Component
 public class RpcServer implements BeanPostProcessor {
+	
+	private static final Logger LOGGER = Logger.getLogger(RpcServer.class);
 
 	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
@@ -23,32 +30,62 @@ public class RpcServer implements BeanPostProcessor {
 
 	@Override
 	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-		Service service = bean.getClass().getAnnotation(Service.class);
-        if (DubboI_Configuration.instance != null && service != null) {
-        	 ServiceBean<Object> serviceConfig = new ServiceBean<Object>(service);
-             if (void.class.equals(service.interfaceClass()) && "".equals(service.interfaceName())) { // 检查接口
-                 if (bean.getClass().getInterfaces().length > 0) {
-                     serviceConfig.setInterface(bean.getClass().getInterfaces()[0]);
-                 } else {
-                     throw new IllegalStateException("Failed to export remote service class " + bean.getClass().getName() + ", cause: The @Service undefined interfaceClass or interfaceName, and the service class unimplemented any interfaces.");
-                 }
-             }
-             
-             serviceConfig.setApplication(DubboI_Configuration.instance.application);
-             serviceConfig.setRegistry(DubboI_Configuration.instance.registry);
-             serviceConfig.setProtocol(DubboI_Configuration.instance.protocol);
-             String version = service.version();
-             if (version != null && !version.trim().isEmpty()) { // 服务版本，注解中的版本可覆盖properties文件中的版本
-            	 serviceConfig.setVersion(version);
-             } else {
-            	 serviceConfig.setVersion(DubboI_Configuration.instance.getVersion());
-             }
-             serviceConfig.setRef(bean);
-             
-             serviceConfig.export(); // 暴露及注册服务
-        }
+		exportService(bean);
         return bean;
 	}
 
+	/**
+	 * 加载指定包下的服务并暴露及注册服务
+	 * @param packageName
+	 */
+	public static void scanService(String packageName) {
+		if (!Strings.isNullOrEmpty(packageName)) {
+			 List<Class<?>> clazzs = DefaultClassScanner.getInstance().getClassListByAnnotation(packageName, Service.class);
+			 clazzs.stream().forEach(clazz -> {
+				 try {
+					Object bean = clazz.newInstance();
+					exportService(bean);
+				} catch (InstantiationException | IllegalAccessException e) {
+					LOGGER.warn(clazz.getName() + "实例化异常", e);
+				}
+			 });
+		}
+	}
+	
+	/**
+	 * 暴露及注册服务
+	 * @param bean
+	 * @return
+	 */
+	public static boolean exportService(Object bean) {
+		if (bean != null) {
+			Service service = bean.getClass().getAnnotation(Service.class);
+	        if (DubboI_Configuration.instance != null && service != null) {
+	        	 ServiceBean<Object> serviceConfig = new ServiceBean<Object>(service);
+	             if (void.class.equals(service.interfaceClass()) && "".equals(service.interfaceName())) { // 检查接口
+	                 if (bean.getClass().getInterfaces().length > 0) {
+	                     serviceConfig.setInterface(bean.getClass().getInterfaces()[0]);
+	                 } else {
+	                     throw new IllegalStateException("Failed to export remote service class " + bean.getClass().getName() + ", cause: The @Service undefined interfaceClass or interfaceName, and the service class unimplemented any interfaces.");
+	                 }
+	             }
+	             
+	             serviceConfig.setApplication(DubboI_Configuration.instance.application);
+	             serviceConfig.setRegistry(DubboI_Configuration.instance.registry);
+	             serviceConfig.setProtocol(DubboI_Configuration.instance.protocol);
+	             String version = service.version();
+	             if (version != null && !version.trim().isEmpty()) { // 服务版本，注解中的版本可覆盖properties文件中的版本
+	            	 serviceConfig.setVersion(version);
+	             } else {
+	            	 serviceConfig.setVersion(DubboI_Configuration.instance.getVersion());
+	             }
+	             serviceConfig.setRef(bean);
+	             
+	             serviceConfig.export(); // 暴露及注册服务
+	             return true;
+	        }
+		}
+		return false;
+	}
 
 }
