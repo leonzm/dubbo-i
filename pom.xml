@@ -12,42 +12,62 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <spring.version>4.3.3.RELEASE</spring.version>
+    <junit.version>4.11</junit.version>
+    <log4j.version>1.2.17</log4j.version>
+    <slf4j.version>1.7.5</slf4j.version>
+    <spring.version>4.1.6.RELEASE</spring.version>
+    <zookeeper.version>3.4.6</zookeeper.version>
+    <zkclient.version>0.1</zkclient.version>
+    <dubbo.version>2.5.3</dubbo.version>
+    <guava.version>19.0</guava.version>
+    <jackson.version>1.9.13</jackson.version>
   </properties>
 
   <dependencies>
   
+    <!-- junit -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
-    
+    <!-- log4j -->
+	<dependency>
+	    <groupId>log4j</groupId>
+	    <artifactId>log4j</artifactId>
+	    <version>${log4j.version}</version>
+	</dependency>
+	<!-- log4j 实际调用slf4j -->
+	<dependency>
+		<groupId>org.slf4j</groupId>
+		<artifactId>log4j-over-slf4j</artifactId>
+		<version>${slf4j.version}</version>
+		<scope>runtime</scope>
+	</dependency>
+    <!-- spring -->
     <dependency>
 	  <groupId>org.springframework</groupId>
 	  <artifactId>spring-context</artifactId>
-	  <version>4.1.6.RELEASE</version>
+	  <version>${spring.version}</version>
 	</dependency>
-	
 	<!-- zookeeper -->
 	<dependency>
 	  <groupId>org.apache.zookeeper</groupId>
 	  <artifactId>zookeeper</artifactId>
-	  <version>3.4.6</version>
+	  <version>${zookeeper.version}</version>
 	</dependency>
 	<!-- 连接zookeeper的客户端 -->
 	<dependency>
 	  <groupId>com.github.sgroschupf</groupId>
 	  <artifactId>zkclient</artifactId>
-	  <version>0.1</version>
+	  <version>${zkclient.version}</version>
 	</dependency>
-	
 	<!-- dubbo -->
 	<dependency>
 	  <groupId>com.alibaba</groupId>
 	  <artifactId>dubbo</artifactId>
-	  <version>2.5.3</version>
+	  <version>${dubbo.version}</version>
 	  <exclusions>
 		  <exclusion>
 		    <groupId>org.springframework</groupId>
@@ -55,27 +75,18 @@
           </exclusion>
 		</exclusions>
 	</dependency>
-	
-	<!-- log4j -->
-	<dependency>
-	    <groupId>log4j</groupId>
-	    <artifactId>log4j</artifactId>
-	    <version>1.2.17</version>
-	</dependency>
-	<!-- log4j 实际调用slf4j -->
-	<dependency>
-		<groupId>org.slf4j</groupId>
-		<artifactId>log4j-over-slf4j</artifactId>
-		<version>1.7.5</version>
-		<scope>runtime</scope>
-	</dependency>
-	
 	<!-- guava -->
 	<dependency>
 	    <groupId>com.google.guava</groupId>
 	    <artifactId>guava</artifactId>
-	    <version>19.0</version>
+	    <version>${guava.version}</version>
 	</dependency>
+	<!-- Jackson -->
+    <dependency>
+        <groupId>org.codehaus.jackson</groupId>
+        <artifactId>jackson-mapper-asl</artifactId>
+        <version>${jackson.version}</version>
+    </dependency>
     
   </dependencies>
 
