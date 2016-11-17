@@ -2,7 +2,8 @@ package com.pengshu.dubbo_i.server;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
@@ -21,7 +22,7 @@ import com.pengshu.dubbo_i.util.class_scan.DefaultClassScanner;
 @Component
 public class RpcServer implements BeanPostProcessor {
 	
-	private static final Logger LOGGER = Logger.getLogger(RpcServer.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(RpcServer.class);
 
 	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {

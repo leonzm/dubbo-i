@@ -16,14 +16,13 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-
 import com.alibaba.dubbo.config.ApplicationConfig;
 import com.alibaba.dubbo.config.ProtocolConfig;
 import com.alibaba.dubbo.config.RegistryConfig;
 import com.pengshu.dubbo_i.server.RpcServer;
 import com.pengshu.dubbo_i.util.NativePath;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Dubbo配置解析及其他全局配置
@@ -32,7 +31,7 @@ import com.pengshu.dubbo_i.util.NativePath;
  */
 public class DubboI_Configuration {
 	
-	private final static Logger LOGGER = LogManager.getLogger(DubboI_Configuration.class.getName());
+	private final static Logger LOGGER = LoggerFactory.getLogger(DubboI_Configuration.class.getName());
 	
 	public final static ZoneId zoneid = ZoneId.of("GMT+08:00");
 	public final static Charset charset = StandardCharsets.UTF_8;

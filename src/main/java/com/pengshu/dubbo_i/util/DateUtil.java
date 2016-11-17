@@ -9,8 +9,6 @@ import org.slf4j.LoggerFactory;
 /**
  * 日期操作工具类
  *
- * @author huangyong
- * @since 1.0
  */
 public class DateUtil {
 
