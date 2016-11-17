@@ -38,10 +38,13 @@ public class DubboI_Configuration {
 	public final static String ip = getLocalhostIp();
 	
 	public static final String PROTOCOL_DUBBO = "dubbo";
+	public static final String PROTOCOL_RESTFUL = "restful";
+	public static final String PROTOCOL_RESTFUL_SERVER = "restful";
 	
 	public ApplicationConfig application; // 当前应用配置
 	public RegistryConfig registry; // 当前应用配置
-	public ProtocolConfig protocol; // 服务提供者协议配置
+	public ProtocolConfig protocolDubbo; // 服务提供者协议配置（dubbo）
+	public ProtocolConfig protocolRestful; // 服务提供者协议配置（restful）
 	
 	public static DubboI_Configuration instance;
 	
@@ -62,6 +65,7 @@ public class DubboI_Configuration {
 	private String zookeeper;
 	//private String kafka;
 	private Integer dubboPort;
+	private Integer restfulPort = 9090;
 	private String version;
 	
 	// ///////////////////////////////////// get //////////////////////////////////////////
@@ -141,9 +145,10 @@ public class DubboI_Configuration {
 		registry = new RegistryConfig();
 		registry.setAddress(zookeeper);
 		
-		protocol = new ProtocolConfig();
-		protocol.setName(PROTOCOL_DUBBO);
-		protocol.setPort(dubboPort);
+		protocolDubbo = new ProtocolConfig(PROTOCOL_DUBBO, dubboPort);
+		
+		protocolRestful = new ProtocolConfig(PROTOCOL_RESTFUL, restfulPort);
+		protocolRestful.setServer(PROTOCOL_RESTFUL_SERVER);
 		
 		return this;
 	}

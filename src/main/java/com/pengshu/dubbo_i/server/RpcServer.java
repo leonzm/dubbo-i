@@ -1,5 +1,6 @@
 package com.pengshu.dubbo_i.server;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -73,7 +74,8 @@ public class RpcServer implements BeanPostProcessor {
 	             
 	             serviceConfig.setApplication(DubboI_Configuration.instance.application);
 	             serviceConfig.setRegistry(DubboI_Configuration.instance.registry);
-	             serviceConfig.setProtocol(DubboI_Configuration.instance.protocol);
+	             //serviceConfig.setProtocol(DubboI_Configuration.instance.protocolDubbo);
+	             serviceConfig.setProtocols(Arrays.asList(DubboI_Configuration.instance.protocolDubbo, DubboI_Configuration.instance.protocolRestful));
 	             String version = service.version();
 	             if (version != null && !version.trim().isEmpty()) { // 服务版本，注解中的版本可覆盖properties文件中的版本
 	            	 serviceConfig.setVersion(version);
