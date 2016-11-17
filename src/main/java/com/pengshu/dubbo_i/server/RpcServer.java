@@ -82,6 +82,7 @@ public class RpcServer implements BeanPostProcessor {
 	             serviceConfig.setRef(bean);
 	             
 	             serviceConfig.export(); // 暴露及注册服务
+	             LOGGER.info("Dubbo-i 注册服务: " + bean.getClass().getName());
 	             return true;
 	        }
 		}

@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.time.ZoneId;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.LogManager;
@@ -154,6 +155,30 @@ public class DubboI_Configuration {
 	 */
 	public void registerRpcServer(String packageName) {
 		RpcServer.scanService(packageName);
+	}
+	
+	/**
+	 * 非spring方式使用dubbo服务，手动注册指定包下的服务
+	 * @param packageNames
+	 */
+	public void registerRpcServer(String... packageNames) {
+		if (packageNames != null && packageNames.length > 0) {
+			for (String packageName : packageNames) {
+				registerRpcServer(packageName);
+			}
+		}
+	}
+	
+	/**
+	 * 非spring方式使用dubbo服务，手动注册指定包下的服务
+	 * @param packageNames
+	 */
+	public void registerRpcServer(List<String> packageNames) {
+		if (packageNames != null && packageNames.size() > 0) {
+			for (String packageName : packageNames) {
+				registerRpcServer(packageName);
+			}
+		}
 	}
 	
 	/**
