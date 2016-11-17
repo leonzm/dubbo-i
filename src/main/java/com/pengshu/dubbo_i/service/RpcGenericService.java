@@ -1,8 +1,8 @@
 package com.pengshu.dubbo_i.service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.alibaba.dubbo.config.ReferenceConfig;
 import com.alibaba.dubbo.rpc.service.GenericService;
@@ -17,7 +17,7 @@ import com.pengshu.dubbo_i.exception.RpcServiceException;
  */
 public class RpcGenericService {
 	
-	private static Map<String, ReferenceConfig<GenericService>> references = new HashMap<String, ReferenceConfig<GenericService>>(); // <serviceName:version, reference>
+	private static Map<String, ReferenceConfig<GenericService>> references = new ConcurrentHashMap<String, ReferenceConfig<GenericService>>(); // <serviceName:version, reference>
 	
 	private GenericService genericService;
 	
