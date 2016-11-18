@@ -74,8 +74,8 @@ public class RpcServer implements BeanPostProcessor {
 	             
 	             serviceConfig.setApplication(DubboI_Configuration.instance.application);
 	             serviceConfig.setRegistry(DubboI_Configuration.instance.registry);
-	             //serviceConfig.setProtocol(DubboI_Configuration.instance.protocolDubbo);
-	             serviceConfig.setProtocols(Arrays.asList(DubboI_Configuration.instance.protocolDubbo, DubboI_Configuration.instance.protocolRestful));
+	             //serviceConfig.setProtocol(DubboI_Configuration.instance.protocolDubbo); // 开启dubbo服务
+	             serviceConfig.setProtocols(Arrays.asList(DubboI_Configuration.instance.protocolDubbo, DubboI_Configuration.instance.protocolRestful)); // 开启dubbo服务、restful服务
 	             String version = service.version();
 	             if (version != null && !version.trim().isEmpty()) { // 服务版本，注解中的版本可覆盖properties文件中的版本
 	            	 serviceConfig.setVersion(version);

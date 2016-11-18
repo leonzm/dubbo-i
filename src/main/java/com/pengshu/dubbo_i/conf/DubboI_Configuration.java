@@ -40,6 +40,7 @@ public class DubboI_Configuration {
 	public static final String PROTOCOL_DUBBO = "dubbo";
 	public static final String PROTOCOL_RESTFUL = "restful";
 	public static final String PROTOCOL_RESTFUL_SERVER = "restful";
+	public static final int PROTOCOL_RESTFUL_DEFAULT_THREADS = 200;
 	
 	public ApplicationConfig application; // 当前应用配置
 	public RegistryConfig registry; // 当前应用配置
@@ -83,6 +84,10 @@ public class DubboI_Configuration {
 
 	public Integer getDubboPort() {
 		return dubboPort;
+	}
+
+	public Integer getRestfulPort() {
+		return restfulPort;
 	}
 
 	public String getVersion() {

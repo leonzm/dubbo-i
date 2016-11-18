@@ -4,6 +4,7 @@ import com.alibaba.dubbo.common.Constants;
 import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.remoting.http.HttpHandler;
 import com.alibaba.dubbo.remoting.http.support.AbstractHttpServer;
+import com.pengshu.dubbo_i.conf.DubboI_Configuration;
 import com.pengshu.dubbo_i.restful.protocol.JettyRpcHandler;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.HandlerList;
@@ -24,7 +25,7 @@ public class JettyHttpServer extends AbstractHttpServer {
     public JettyHttpServer(URL url, HttpHandler handler) {
         super(url, handler);
 
-        int threads = url.getParameter(Constants.THREADS_KEY, Constants.DEFAULT_THREADS);
+        int threads = url.getParameter(Constants.THREADS_KEY, DubboI_Configuration.PROTOCOL_RESTFUL_DEFAULT_THREADS);
         QueuedThreadPool threadPool = new QueuedThreadPool();
         threadPool.setDaemon(true);
         threadPool.setMaxThreads(threads);
@@ -34,9 +35,8 @@ public class JettyHttpServer extends AbstractHttpServer {
         ServerConnector serverConnector = new ServerConnector(server);
         LOGGER.info("DubboI初始化Jetty容器线程池大小：{}", threads);
 
-        int port = url.getPort(9090);
-        serverConnector.setPort(port);
-        LOGGER.info("DubboI初始化Jetty绑定端口：{}", port);
+        serverConnector.setPort(DubboI_Configuration.instance.getRestfulPort());
+        LOGGER.info("DubboI初始化Jetty绑定端口：{}", DubboI_Configuration.instance.getRestfulPort());
 
         server.setConnectors(new Connector[] {serverConnector});
 
