@@ -8,7 +8,6 @@ import java.util.Set;
 
 import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.remoting.http.HttpBinder;
-import com.alibaba.dubbo.rpc.Protocol;
 import com.alibaba.dubbo.rpc.RpcException;
 import com.alibaba.dubbo.rpc.protocol.AbstractProxyProtocol;
 import com.alibaba.dubbo.rpc.protocol.dubbo.DubboProtocol;
@@ -24,7 +23,6 @@ public class RestfulProxyProtocol extends AbstractProxyProtocol {
 	
 	private HttpBinder httpBinder;
 	private JettyHttpServer jettyHttpServer;
-	Protocol dubboProtocol;
 	Runnable runnable = () -> {
 		if (jettyHttpServer.isClosed()) {
 			return;
@@ -52,8 +50,7 @@ public class RestfulProxyProtocol extends AbstractProxyProtocol {
 	 * @throws RpcException
 	 */
 	protected <T> Runnable doExport(T impl, Class<T> type, URL url) throws RpcException {
-		//检查方法是否有重载 如果有直接抛出异常ß
-		check(type);
+		check(type); // 检查方法是否有重载 如果有直接抛出异常
 		if (jettyHttpServer == null) {
 			jettyHttpServer = (JettyHttpServer) httpBinder.bind(url, (req, res) -> {});
 		}
@@ -64,7 +61,7 @@ public class RestfulProxyProtocol extends AbstractProxyProtocol {
 			MetaCache metaCache = new MetaCache(impl, type.getSimpleName(), method, method.getName());
 			value.put(method.getName(), metaCache);
 			Arrays.stream(method.getParameters()).forEach(parameter -> {
-				logger.info(parameter.getName() + " " + parameter.getType());
+				logger.info(parameter.getName() + " -> " + parameter.getType());
 				metaCache.getArguments().put(parameter.getName(), parameter.getType());
 			});
 		});
@@ -73,6 +70,11 @@ public class RestfulProxyProtocol extends AbstractProxyProtocol {
 		return runnable;
 	}
 
+	/**
+	 * 检查是否有方法重载
+	 * @param type
+	 * @throws RpcException
+	 */
 	private <T> void check(Class<T> type) throws RpcException {
 		Method[] methods = type.getMethods();
 		Set<String> methodSet = new HashSet<>();

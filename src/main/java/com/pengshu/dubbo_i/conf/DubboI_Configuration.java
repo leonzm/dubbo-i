@@ -19,6 +19,7 @@ import java.util.Properties;
 import com.alibaba.dubbo.config.ApplicationConfig;
 import com.alibaba.dubbo.config.ProtocolConfig;
 import com.alibaba.dubbo.config.RegistryConfig;
+import com.google.common.base.Strings;
 import com.pengshu.dubbo_i.server.RpcServer;
 import com.pengshu.dubbo_i.util.NativePath;
 import org.slf4j.Logger;
@@ -41,6 +42,7 @@ public class DubboI_Configuration {
 	public static final String PROTOCOL_RESTFUL = "restful";
 	public static final String PROTOCOL_RESTFUL_SERVER = "restful";
 	public static final int PROTOCOL_RESTFUL_DEFAULT_THREADS = 200;
+	public static final boolean PROTOCOL_RESTFUL_DEFAULT_ENABLE = true;
 	
 	public ApplicationConfig application; // 当前应用配置
 	public RegistryConfig registry; // 当前应用配置
@@ -49,7 +51,26 @@ public class DubboI_Configuration {
 	
 	public static DubboI_Configuration instance;
 	
+	/**
+	 * 初始化DubboI配置
+	 * @param dubboi_path dubboi配置文件路径
+	 * @return
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	public static DubboI_Configuration newInstance(String dubboi_path) throws IOException, URISyntaxException {
+		return newInstance(dubboi_path, PROTOCOL_RESTFUL_DEFAULT_ENABLE);
+	}
+	
+	/**
+	 * 初始化DubboI配置
+	 * @param dubboi_path dubboi配置文件路径
+	 * @param restfulEnable 是否开启restful服务，默认为开启
+	 * @return
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	public static DubboI_Configuration newInstance(String dubboi_path, boolean restfulEnable) throws IOException, URISyntaxException {
 		synchronized(DubboI_Configuration.class) {
 			if (instance == null) {
 				instance = new DubboI_Configuration();
@@ -57,6 +78,7 @@ public class DubboI_Configuration {
 				instance.initDubbo();
 			}
 		}
+		instance.restfulEnable = restfulEnable;
 		return instance;
 	}
 	
@@ -67,6 +89,7 @@ public class DubboI_Configuration {
 	//private String kafka;
 	private Integer dubboPort;
 	private Integer restfulPort = 9090;
+	private boolean restfulEnable;
 	private String version;
 	
 	// ///////////////////////////////////// get //////////////////////////////////////////
@@ -88,6 +111,10 @@ public class DubboI_Configuration {
 
 	public Integer getRestfulPort() {
 		return restfulPort;
+	}
+
+	public boolean isRestfulEnable() {
+		return restfulEnable;
 	}
 
 	public String getVersion() {
@@ -134,6 +161,15 @@ public class DubboI_Configuration {
 			System.exit(-1);
 		}
 		dubboPort = Integer.parseInt(dubbo_port);
+		String restful_port = dubboi_properties.getProperty("dubboi.restful.port");
+		if (!Strings.isNullOrEmpty(restful_port)) {
+			if (restful_port.matches("\\d+")) {
+				restfulPort = Integer.parseInt(restful_port);
+			} else {
+				LOGGER.error("restful port配置必须是整数");
+				System.exit(-1);
+			}
+		}
 		version = dubboi_properties.getProperty("dubboi.version");
 		if (version == null || version.trim().isEmpty()) {
 			LOGGER.error("version配置不能为空:dubboi.version");

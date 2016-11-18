@@ -1,20 +1,5 @@
 package com.pengshu.dubbo_i.restful.protocol;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Strings;
-import com.pengshu.dubbo_i.exception.ServiceNotFoundException;
-import com.pengshu.dubbo_i.restful.container.MetaCache;
-import com.pengshu.dubbo_i.restful.model.Response;
-import com.pengshu.dubbo_i.util.JsonUtil;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.text.ParseException;
@@ -24,6 +9,23 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
+import com.pengshu.dubbo_i.exception.ServiceNotFoundException;
+import com.pengshu.dubbo_i.restful.container.MetaCache;
+import com.pengshu.dubbo_i.restful.model.Response;
+import com.pengshu.dubbo_i.util.JsonUtil;
+
 /**
  * Created by pengshu on 2016/11/17.
  */
@@ -32,7 +34,7 @@ public class JettyRpcHandler extends AbstractHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(JettyRpcHandler.class);
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public static final Map<String, Map<String, MetaCache>> metaCacheMap = new HashMap<>(64);
+    public static final Map<String, Map<String, MetaCache>> metaCacheMap = new HashMap<>(64); // <service, <method, MetaCache>>
 
     @Override
     public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -255,7 +257,7 @@ public class JettyRpcHandler extends AbstractHandler {
         }
         return JsonUtil.fromJSON(request.getInputStream(), JsonNode.class); // POST请求的参数为application/json
     }
-
+    
     /**
      * 查找服务
      * @param request
@@ -278,6 +280,7 @@ public class JettyRpcHandler extends AbstractHandler {
         }
 
         MetaCache metaCache = stringMetaCacheMap.get(method);
+        
         if (metaCache == null) {
             throw new ServiceNotFoundException("service : [" + service + "] method name [" + method + "] not found provider");
         }
