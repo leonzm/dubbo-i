@@ -24,6 +24,7 @@ import com.google.common.base.Strings;
 import com.pengshu.dubbo_i.exception.ServiceNotFoundException;
 import com.pengshu.dubbo_i.restful.container.MetaCache;
 import com.pengshu.dubbo_i.restful.model.Response;
+import com.pengshu.dubbo_i.server.RpcServer;
 import com.pengshu.dubbo_i.util.JsonUtil;
 
 /**
@@ -42,7 +43,7 @@ public class JettyRpcHandler extends AbstractHandler {
         final Response responseData = new Response();
         Object data = null;
         try {
-            if (!"application/json".equals(request.getContentType())) {
+            if (!request.getContentType().startsWith("application/json")) { // application/json; charset=UTF-8
                 throw new IllegalArgumentException("request content type must be application/json,your request content type is [" + request.getContentType() + "]");
             }
 
@@ -284,6 +285,15 @@ public class JettyRpcHandler extends AbstractHandler {
         if (metaCache == null) {
             throw new ServiceNotFoundException("service : [" + service + "] method name [" + method + "] not found provider");
         }
+        
+        String version = request.getParameter("version");
+        if (Strings.isNullOrEmpty(version)) {
+            throw new NullPointerException("version name must not be null");
+        }
+        if (RpcServer.rpcServiceVersionMap.containsKey(service) && !RpcServer.rpcServiceVersionMap.get(service).equals(version)) {
+        	throw new ServiceNotFoundException("service : [" + service + "] method name [" + method + "] version [" + version + "] not found provider");
+        }
+        
         return metaCache;
     }
 
