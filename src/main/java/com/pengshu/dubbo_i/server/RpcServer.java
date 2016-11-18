@@ -1,8 +1,12 @@
 package com.pengshu.dubbo_i.server;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
@@ -21,7 +25,9 @@ import com.pengshu.dubbo_i.util.class_scan.DefaultClassScanner;
 @Component
 public class RpcServer implements BeanPostProcessor {
 	
-	private static final Logger LOGGER = Logger.getLogger(RpcServer.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(RpcServer.class);
+	
+	public static final Map<String, String> rpcServiceVersionMap = new HashMap<String, String>(); // <serviceName, version>
 
 	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
@@ -72,13 +78,18 @@ public class RpcServer implements BeanPostProcessor {
 	             
 	             serviceConfig.setApplication(DubboI_Configuration.instance.application);
 	             serviceConfig.setRegistry(DubboI_Configuration.instance.registry);
-	             serviceConfig.setProtocol(DubboI_Configuration.instance.protocol);
+	             if (DubboI_Configuration.instance.isRestfulEnable()) {
+	            	 serviceConfig.setProtocols(Arrays.asList(DubboI_Configuration.instance.protocolDubbo, DubboI_Configuration.instance.protocolRestful)); // 开启dubbo服务、restful服务
+	             } else {
+	            	 serviceConfig.setProtocol(DubboI_Configuration.instance.protocolDubbo); // 开启dubbo服务
+	             }
 	             String version = service.version();
 	             if (version != null && !version.trim().isEmpty()) { // 服务版本，注解中的版本可覆盖properties文件中的版本
-	            	 serviceConfig.setVersion(version);
 	             } else {
-	            	 serviceConfig.setVersion(DubboI_Configuration.instance.getVersion());
+	            	 version = DubboI_Configuration.instance.getVersion();
 	             }
+	             serviceConfig.setVersion(version);
+	             rpcServiceVersionMap.put(bean.getClass().getInterfaces()[0].getName(), version);
 	             serviceConfig.setRef(bean);
 	             
 	             serviceConfig.export(); // 暴露及注册服务

@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.apache.log4j.Logger;
-
 import com.google.common.base.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 用于获取类的模板类
@@ -20,7 +20,7 @@ import com.google.common.base.Strings;
  */
 public abstract class ClassTemplate {
 
-    private static final Logger logger = Logger.getLogger(ClassTemplate.class);
+    private static final Logger logger = LoggerFactory.getLogger(ClassTemplate.class);
 
     protected final String packageName;
 
