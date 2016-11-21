@@ -17,7 +17,7 @@ import com.pengshu.dubbo_i.exception.RpcServiceException;
  */
 public class RpcGenericService {
 	
-	private static Map<String, ReferenceConfig<GenericService>> references = new ConcurrentHashMap<String, ReferenceConfig<GenericService>>(); // <serviceName:version, reference>
+	private static Map<String, ReferenceConfig<GenericService>> references = new ConcurrentHashMap<String, ReferenceConfig<GenericService>>(); // <serviceName:version:group, reference>
 	
 	private GenericService genericService;
 	
@@ -29,10 +29,10 @@ public class RpcGenericService {
 	
 	// ///////////////////////////////////// Create //////////////////////////////////////////
 	public static RpcGenericService Create(String serviceName, String version) throws RpcServiceException {
-		return Create(serviceName, version, DubboI_Configuration.instance.getLoadbalance(), DubboI_Configuration.instance.getConnections(), DubboI_Configuration.instance.getAccepts(), DubboI_Configuration.instance.getRetries(), DubboI_Configuration.instance.getTimeout());
+		return Create(serviceName, version, "", DubboI_Configuration.instance.getLoadbalance(), DubboI_Configuration.instance.getConnections(), DubboI_Configuration.instance.getAccepts(), DubboI_Configuration.instance.getRetries(), DubboI_Configuration.instance.getTimeout());
 	}
 	
-	public static RpcGenericService Create(String serviceName, String version, String loadbalance, int connections, int actives, int retries, int timeout) throws RpcServiceException {
+	public static RpcGenericService Create(String serviceName, String version, String group, String loadbalance, int connections, int actives, int retries, int timeout) throws RpcServiceException {
 		if (DubboI_Configuration.instance == null) {
 			throw new RpcServiceException("还未初始化Dubbo配置");
 		}
@@ -40,7 +40,8 @@ public class RpcGenericService {
 			return null;
 		}
 		ReferenceConfig<GenericService> reference;
-		String k = serviceName.concat(":").concat(version);
+		group = !Strings.isNullOrEmpty(group) ? group : "";
+		String k = serviceName.concat(":").concat(version).concat(group);
 		if (references.containsKey(k)) {
 			reference = references.get(k);
 		} else {
@@ -50,6 +51,7 @@ public class RpcGenericService {
 			reference.setProtocol(DubboI_Configuration.PROTOCOL_DUBBO);
 			reference.setInterface(serviceName); // 弱类型接口名 
 			reference.setVersion(version);
+			reference.setGroup(group);
 			if (loadbalance != null && !loadbalance.trim().isEmpty() && DubboI_Configuration.getLoadbalance(loadbalance) != null) { // 负载均衡，服务消费方
 				reference.setLoadbalance(loadbalance);
 			} else {

@@ -11,6 +11,7 @@ import com.alibaba.dubbo.remoting.http.HttpBinder;
 import com.alibaba.dubbo.rpc.RpcException;
 import com.alibaba.dubbo.rpc.protocol.AbstractProxyProtocol;
 import com.alibaba.dubbo.rpc.protocol.dubbo.DubboProtocol;
+import com.google.common.base.Strings;
 import com.pengshu.dubbo_i.conf.DubboI_Configuration;
 import com.pengshu.dubbo_i.restful.container.JettyHttpServer;
 import com.pengshu.dubbo_i.restful.container.MetaCache;
@@ -65,7 +66,12 @@ public class RestfulProxyProtocol extends AbstractProxyProtocol {
 			});
 		});
 		
-		JettyRpcHandler.metaCacheMap.put(type.getName(), value);
+		String version = url.getParameter("version");
+		String group = url.getParameter("group");
+		if (Strings.isNullOrEmpty(group)) {
+			group = "";
+		}
+		JettyRpcHandler.metaCacheMap.put(type.getName().concat(":").concat(version).concat(":").concat(group), value);
 		return runnable;
 	}
 

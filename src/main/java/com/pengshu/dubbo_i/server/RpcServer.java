@@ -1,9 +1,7 @@
 package com.pengshu.dubbo_i.server;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,8 +26,6 @@ public class RpcServer implements BeanPostProcessor {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(RpcServer.class);
 	
-	public static final Map<String, String> rpcServiceVersionMap = new HashMap<String, String>(); // <serviceName, version>
-
 	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 		return bean;
@@ -90,6 +86,12 @@ public class RpcServer implements BeanPostProcessor {
 	            	 version = DubboI_Configuration.instance.getVersion();
 	             }
 	             serviceConfig.setVersion(version);
+	             String group = service.group(); // 服务分组，当一个接口有多个实现，可以用分组区分，必需和服务提供方一致
+	             if (group != null && !group.trim().isEmpty()) {
+	             } else {
+	            	 group = "";
+	             }
+	             serviceConfig.setGroup(group);
 	             Loadbalance loadbalance = DubboI_Configuration.getLoadbalance(service.loadbalance());
 	             if (loadbalance != null) { // 均衡负载，服务提供方
 	            	 serviceConfig.setLoadbalance(loadbalance.toString());
@@ -128,7 +130,6 @@ public class RpcServer implements BeanPostProcessor {
 	            	 serviceConfig.setTimeout(DubboI_Configuration.instance.getTimeout());
 	             }
 	             
-	             rpcServiceVersionMap.put(bean.getClass().getInterfaces()[0].getName(), version);
 	             serviceConfig.setRef(bean);
 	             
 	             serviceConfig.export(); // 暴露及注册服务

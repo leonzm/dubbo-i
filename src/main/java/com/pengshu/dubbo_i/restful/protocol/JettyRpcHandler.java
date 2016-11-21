@@ -24,7 +24,6 @@ import com.google.common.base.Strings;
 import com.pengshu.dubbo_i.exception.ServiceNotFoundException;
 import com.pengshu.dubbo_i.restful.container.MetaCache;
 import com.pengshu.dubbo_i.restful.model.Response;
-import com.pengshu.dubbo_i.server.RpcServer;
 import com.pengshu.dubbo_i.util.JsonUtil;
 
 /**
@@ -35,7 +34,7 @@ public class JettyRpcHandler extends AbstractHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(JettyRpcHandler.class);
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public static final Map<String, Map<String, MetaCache>> metaCacheMap = new HashMap<>(64); // <service, <method, MetaCache>>
+    public static final Map<String, Map<String, MetaCache>> metaCacheMap = new HashMap<>(64); // <service:version:group, <method, MetaCache>>
 
     @Override
     public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -274,24 +273,25 @@ public class JettyRpcHandler extends AbstractHandler {
         if (Strings.isNullOrEmpty(method)) {
             throw new NullPointerException("method name must not be null");
         }
-
-        Map<String, MetaCache> stringMetaCacheMap = metaCacheMap.get(service);
-        if (stringMetaCacheMap == null || stringMetaCacheMap.size() == 0) {
-            throw new ServiceNotFoundException("service : [" + service + "] not found provider");
-        }
-
-        MetaCache metaCache = stringMetaCacheMap.get(method);
-        
-        if (metaCache == null) {
-            throw new ServiceNotFoundException("service : [" + service + "] method name [" + method + "] not found provider");
-        }
         
         String version = request.getParameter("version");
         if (Strings.isNullOrEmpty(version)) {
             throw new NullPointerException("version name must not be null");
         }
-        if (RpcServer.rpcServiceVersionMap.containsKey(service) && !RpcServer.rpcServiceVersionMap.get(service).equals(version)) {
-        	throw new ServiceNotFoundException("service : [" + service + "] method name [" + method + "] version [" + version + "] not found provider");
+        
+        String group = request.getParameter("group");
+        if (Strings.isNullOrEmpty(group)) {
+        	group = "";
+        }
+
+        Map<String, MetaCache> stringMetaCacheMap = metaCacheMap.get(service.concat(":").concat(version).concat(":").concat(group));
+        if (stringMetaCacheMap == null || stringMetaCacheMap.size() == 0) {
+            throw new ServiceNotFoundException("service : [" + service + "] version [" + version + "] group [" + group + "] not found provider");
+        }
+
+        MetaCache metaCache = stringMetaCacheMap.get(method);
+        if (metaCache == null) {
+            throw new ServiceNotFoundException("service : [" + service + "] version [" + version + "] group [" + group + "] method name [" + method + "] not found provider");
         }
         
         return metaCache;
