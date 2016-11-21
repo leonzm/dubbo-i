@@ -84,18 +84,25 @@ public class RpcServer implements BeanPostProcessor {
 	             } else {
 	            	 serviceConfig.setProtocol(DubboI_Configuration.instance.protocolDubbo); // 开启dubbo服务
 	             }
-	             Loadbalance loadbalance = DubboI_Configuration.getLoadbalance(service.loadbalance());
-	             if (loadbalance != null) { // 均衡负载，服务提供方
-	            	 serviceConfig.setLoadbalance(loadbalance.toString());
-	             } else {
-	            	 serviceConfig.setLoadbalance(DubboI_Configuration.instance.getLoadbalance());
-	             }
 	             String version = service.version();
 	             if (version != null && !version.trim().isEmpty()) { // 服务版本，注解中的版本可覆盖properties文件中的版本
 	             } else {
 	            	 version = DubboI_Configuration.instance.getVersion();
 	             }
 	             serviceConfig.setVersion(version);
+	             Loadbalance loadbalance = DubboI_Configuration.getLoadbalance(service.loadbalance());
+	             if (loadbalance != null) { // 均衡负载，服务提供方
+	            	 serviceConfig.setLoadbalance(loadbalance.toString());
+	             } else {
+	            	 serviceConfig.setLoadbalance(DubboI_Configuration.instance.getLoadbalance());
+	             }
+	             int connections = service.connections();
+	             if (connections > 0) { // 注解中的配置
+	            	 serviceConfig.setConnections(connections);
+	             } else {
+	            	 serviceConfig.setConnections(DubboI_Configuration.instance.getConnections());
+	             }
+	             
 	             rpcServiceVersionMap.put(bean.getClass().getInterfaces()[0].getName(), version);
 	             serviceConfig.setRef(bean);
 	             

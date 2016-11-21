@@ -46,7 +46,9 @@ public class DubboI_Configuration {
 	public static final int PROTOCOL_RESTFUL_DEFAULT_THREADS = 200;
 	public static final boolean PROTOCOL_RESTFUL_DEFAULT_ENABLE = true;
 	
-	public static final String LOANBALANCE_DEFAULT = Loadbalance.random.toString();
+	public static final String LOANBALANCE_DEFAULT = Loadbalance.random.toString(); // 默认负载均衡为random
+	public static final int ACCEPTS_DEFAULT = 0; // 服务端最大连接数，0表示无限制
+	public static final int CONNECTIONS_DEFAULT = 0; // 服务端单个service的最大连接数，0表示无限制
 	
 	// 均衡负载，可选值：random,roundrobin,leastactive，分别表示：随机，轮循，最少活跃调用
 	public static enum Loadbalance {   
@@ -93,14 +95,16 @@ public class DubboI_Configuration {
 	
 	private DubboI_Configuration() {}
 	
-	private String applicationName;
-	private String zookeeper;
+	private String applicationName; // 应用程序名
+	private String zookeeper; // zk集群地址
 	//private String kafka;
-	private Integer dubboPort;
-	private Integer restfulPort = 9090;
-	private boolean restfulEnable;
-	private String version;
-	private String loadbalance;
+	private Integer dubboPort; // dubbo协议端口
+	private Integer restfulPort = 9090; // restful端口
+	private boolean restfulEnable; // restful是否启用
+	private String version; // 应用程序版本
+	private String loadbalance = LOANBALANCE_DEFAULT; // 应用程序均衡负载方式
+	private int accepts = ACCEPTS_DEFAULT; // 服务端最大连接数
+	private int connections = CONNECTIONS_DEFAULT; // 单个服务最大连接数
 	
 	// ///////////////////////////////////// get //////////////////////////////////////////
 	public String getApplicationName() {
@@ -133,6 +137,14 @@ public class DubboI_Configuration {
 	
 	public String getLoadbalance() {
 		return loadbalance;
+	}
+	
+	public int getAccepts() {
+		return accepts;
+	}
+
+	public int getConnections() {
+		return connections;
 	}
 
 	// ///////////////////////////////////// initialization //////////////////////////////////////////
@@ -202,6 +214,18 @@ public class DubboI_Configuration {
 		} else {
 			loadbalance = LOANBALANCE_DEFAULT;
 		}
+		String strAccepts = dubboi_properties.getProperty("dubboi.accepts");
+		if (strAccepts != null && !strAccepts.trim().isEmpty() && strAccepts.matches("\\d+")) {
+			accepts = Integer.parseInt(strAccepts);
+		} else {
+			accepts = ACCEPTS_DEFAULT;
+		}
+		String strConnections = dubboi_properties.getProperty("dubboi.connections");
+		if (strConnections != null && !strConnections.trim().isEmpty() && strConnections.matches("\\d+")) {
+			connections = Integer.parseInt(strConnections);
+		} else {
+			connections = CONNECTIONS_DEFAULT;
+		}
 		// **** 选填 **** //
 		
 		return this;
@@ -239,6 +263,7 @@ public class DubboI_Configuration {
 		registry.setAddress(zkAddress.toString());
 		
 		protocolDubbo = new ProtocolConfig(PROTOCOL_DUBBO, dubboPort);
+		protocolDubbo.setAccepts(accepts); // 服务端最大连接数
 		
 		protocolRestful = new ProtocolConfig(PROTOCOL_RESTFUL, restfulPort);
 		protocolRestful.setServer(PROTOCOL_RESTFUL_SERVER);
