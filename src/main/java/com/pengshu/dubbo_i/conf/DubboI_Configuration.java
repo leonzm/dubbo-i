@@ -52,6 +52,7 @@ public class DubboI_Configuration {
 	public static final int EXECUTES_DEFAULT = 0; // 服务提供者每服务每方法最大可并行执行请求数，0表示无限制
 	public static final int ACTIVES_DEFAULT = 0; // 每服务消费者每服务每方法最大并发调用数，0表示无限制
 	public static final int RETRIES_DEFAULT = 2; // Failover容错模式中，远程服务调用重试次数，不包括第一次调用，不需要重试请设为0 
+	public static final int TIMEOUT_DEFAULT = 0; // 服务方法调用超时时间(毫秒)，0表示无限制
 	
 	// 均衡负载，可选值：random,roundrobin,leastactive，分别表示：随机，轮循，最少活跃调用
 	public static enum Loadbalance {   
@@ -111,6 +112,7 @@ public class DubboI_Configuration {
 	private int executes = EXECUTES_DEFAULT; // 服务提供者每服务每方法最大可并行执行请求数
 	private int actives = ACTIVES_DEFAULT; // 每服务消费者每服务每方法最大并发调用数
 	private int retries = RETRIES_DEFAULT; // 失败最大的重试次数，不含第一次调用
+	private int timeout = TIMEOUT_DEFAULT; // 远程服务调用超时时间（毫秒）
 	
 	// ///////////////////////////////////// get //////////////////////////////////////////
 	public String getApplicationName() {
@@ -163,6 +165,10 @@ public class DubboI_Configuration {
 
 	public int getRetries() {
 		return retries;
+	}
+	
+	public int getTimeout() {
+		return timeout;
 	}
 	
 	// ///////////////////////////////////// initialization //////////////////////////////////////////
@@ -261,6 +267,12 @@ public class DubboI_Configuration {
 			retries = Integer.parseInt(strRetries);
 		} else {
 			retries = RETRIES_DEFAULT;
+		}
+		String strTimeout = dubboi_properties.getProperty("dubboi.timeout");
+		if (strTimeout != null && !strTimeout.trim().isEmpty() && strTimeout.matches("\\d+") && Integer.parseInt(strTimeout) > 0) {
+			timeout = Integer.parseInt(strTimeout);
+		} else {
+			timeout = TIMEOUT_DEFAULT;
 		}
 		// **** 选填 **** //
 		

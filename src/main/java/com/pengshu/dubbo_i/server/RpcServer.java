@@ -120,6 +120,13 @@ public class RpcServer implements BeanPostProcessor {
 	             } else {
 	            	 serviceConfig.setRetries(DubboI_Configuration.instance.getRetries());
 	             }
+	             int timeout = service.timeout();
+	             if (timeout > 0) { // 注解中的配置
+	            	 serviceConfig.setTimeout(timeout);
+	             }
+	             if (DubboI_Configuration.instance.getTimeout() > 0) { // 配置文件中的配置
+	            	 serviceConfig.setTimeout(DubboI_Configuration.instance.getTimeout());
+	             }
 	             
 	             rpcServiceVersionMap.put(bean.getClass().getInterfaces()[0].getName(), version);
 	             serviceConfig.setRef(bean);
