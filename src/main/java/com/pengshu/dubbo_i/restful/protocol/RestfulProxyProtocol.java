@@ -16,8 +16,7 @@ import com.pengshu.dubbo_i.restful.container.JettyHttpServer;
 import com.pengshu.dubbo_i.restful.container.MetaCache;
 
 /**
- * Created by freeman on 16/6/14.
- * 
+ * Created by pengshu on 2016/11/17.
  */
 public class RestfulProxyProtocol extends AbstractProxyProtocol {
 	

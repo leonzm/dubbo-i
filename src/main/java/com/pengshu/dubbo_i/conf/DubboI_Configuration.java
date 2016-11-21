@@ -15,6 +15,7 @@ import java.time.ZoneId;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
+import java.util.Random;
 
 import com.alibaba.dubbo.config.ApplicationConfig;
 import com.alibaba.dubbo.config.ProtocolConfig;
@@ -147,6 +148,10 @@ public class DubboI_Configuration {
 			LOGGER.error("zookeeper配置不能为空:dubboi.zookeeper");
 			System.exit(-1);
 		}
+		if (!zookeeper.matches("(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}:\\d+,?)+") || zookeeper.endsWith(",")) {
+			LOGGER.error("zookeeper配置必须是这样的形式:'\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}:\\d+'，如果有多个，以逗号分隔");
+			System.exit(-1);
+		}
 		/*kafka = dubboi_properties.getProperty("dubboi.kafka");
 		if (kafka == null || kafka.trim().isEmpty()) {
 			LOGGER.warn("kafka配置为空:dubboi.kafka 调用链/日志等功能将不可用");
@@ -184,7 +189,31 @@ public class DubboI_Configuration {
 		application.setName(applicationName);
 		
 		registry = new RegistryConfig();
-		registry.setAddress(zookeeper);
+		// 由于客户端配置zk的形式是：123.456.789.0:2181或123.456.789.0:2181:123.456.789.1:2181,123.456.789.2:2181，
+		// 而dubbo需要的是zookeeper://10.20.153.10:2181?backup=10.20.153.11:2181,10.20.153.12:2181，故这里要做相应调整，如果是多个，首选随机
+		StringBuffer zkAddress = new StringBuffer("zookeeper://");
+		String[] zkSplit = zookeeper.split(",");
+		if (zkSplit.length == 1) { // 只有一台，没得选
+			zkAddress.append(zkSplit[0]);
+		} else { // 首选随机
+			String zkMaster = zkSplit[new Random().nextInt(zkSplit.length)];
+			zkAddress.append(zkMaster);
+			int slaveNum = 0;
+			for (String zkSlave : zkSplit) {
+				if (!zkMaster.equals(zkSlave)) {
+					if (slaveNum == 0) {
+						zkAddress.append("?");
+					} else {
+						zkAddress.append(",");
+					}
+					zkAddress.append(zkSlave);
+					
+					slaveNum ++;
+				}
+			}
+		}
+		LOGGER.info("#调整后的zookeeper配置：" + zkAddress.toString());
+		registry.setAddress(zkAddress.toString());
 		
 		protocolDubbo = new ProtocolConfig(PROTOCOL_DUBBO, dubboPort);
 		
