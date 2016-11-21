@@ -8,6 +8,7 @@ import com.alibaba.dubbo.config.ReferenceConfig;
 import com.alibaba.dubbo.rpc.service.GenericService;
 import com.google.common.base.Strings;
 import com.pengshu.dubbo_i.conf.DubboI_Configuration;
+import com.pengshu.dubbo_i.conf.DubboI_Configuration.Loadbalance;
 import com.pengshu.dubbo_i.exception.RpcServiceException;
 
 /**
@@ -27,7 +28,12 @@ public class RpcGenericService {
 		this.genericService = genericService;
 	}
 	
+	// ///////////////////////////////////// Create //////////////////////////////////////////
 	public static RpcGenericService Create(String serviceName, String version) throws RpcServiceException {
+		return Create(serviceName, version, Loadbalance.random);
+	}
+	
+	public static RpcGenericService Create(String serviceName, String version, Loadbalance loadbalance) throws RpcServiceException {
 		if (DubboI_Configuration.instance == null) {
 			throw new RpcServiceException("还未初始化Dubbo配置");
 		}
@@ -44,7 +50,12 @@ public class RpcGenericService {
 			reference.setRegistry(DubboI_Configuration.instance.registry);
 			reference.setProtocol(DubboI_Configuration.PROTOCOL_DUBBO);
 			reference.setInterface(serviceName); // 弱类型接口名 
-			reference.setVersion(version); 
+			reference.setVersion(version);
+			if (loadbalance != null) { // 负载均衡，服务消费方
+				reference.setLoadbalance(loadbalance.toString());
+			} else {
+				reference.setLoadbalance(Loadbalance.random.toString());
+			}
 			reference.setGeneric(true); // 声明为泛化接口
 			
 			references.put(k, reference);
@@ -55,6 +66,7 @@ public class RpcGenericService {
 		return new RpcGenericService(genericService);
 	}
 	
+	// ///////////////////////////////////// invoke //////////////////////////////////////////
     public Object invoke(String method) throws RpcServiceException {
 		return invoke(method, new String[] {}, new Object[] {});
 	}

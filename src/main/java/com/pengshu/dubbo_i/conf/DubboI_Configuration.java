@@ -39,16 +39,23 @@ public class DubboI_Configuration {
 	public final static Charset charset = StandardCharsets.UTF_8;
 	public final static String ip = getLocalhostIp();
 	
+	// 协议信息
 	public static final String PROTOCOL_DUBBO = "dubbo";
 	public static final String PROTOCOL_RESTFUL = "restful";
 	public static final String PROTOCOL_RESTFUL_SERVER = "restful";
 	public static final int PROTOCOL_RESTFUL_DEFAULT_THREADS = 200;
 	public static final boolean PROTOCOL_RESTFUL_DEFAULT_ENABLE = true;
 	
+	// 均衡负载，可选值：random,roundrobin,leastactive，分别表示：随机，轮循，最少活跃调用
+	public static enum Loadbalance {   
+		random, roundrobin, leastactive
+	}
+	
 	public ApplicationConfig application; // 当前应用配置
 	public RegistryConfig registry; // 当前应用配置
 	public ProtocolConfig protocolDubbo; // 服务提供者协议配置（dubbo）
 	public ProtocolConfig protocolRestful; // 服务提供者协议配置（restful）
+	public String loadbalance = Loadbalance.random.toString(); // 组在均衡，默认使用random
 	
 	public static DubboI_Configuration instance;
 	
@@ -72,14 +79,42 @@ public class DubboI_Configuration {
 	 * @throws URISyntaxException
 	 */
 	public static DubboI_Configuration newInstance(String dubboi_path, boolean restfulEnable) throws IOException, URISyntaxException {
+		return DubboI_Configuration.newInstance(dubboi_path, restfulEnable, Loadbalance.random);
+	}
+	
+	/**
+	 * 初始化DubboI配置
+	 * @param dubboi_path dubboi配置文件路径
+	 * @param loadbalance 服务端的均衡负载
+	 * @return
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	public static DubboI_Configuration newInstance(String dubboi_path, Loadbalance loadbalance) throws IOException, URISyntaxException {
+		return DubboI_Configuration.newInstance(dubboi_path, PROTOCOL_RESTFUL_DEFAULT_ENABLE, loadbalance);
+	}
+	
+	/**
+	 * 初始化DubboI配置
+	 * @param dubboi_path dubboi配置文件路径
+	 * @param restfulEnable 是否开启restful服务，默认为开启
+	 * @param loadbalance 服务端的均衡负载
+	 * @return
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	public static DubboI_Configuration newInstance(String dubboi_path, boolean restfulEnable, Loadbalance loadbalance) throws IOException, URISyntaxException {
 		synchronized(DubboI_Configuration.class) {
 			if (instance == null) {
 				instance = new DubboI_Configuration();
-				instance.initialization(dubboi_path);
-				instance.initDubbo();
+				instance.restfulEnable = restfulEnable; // restful
+				if (loadbalance != null) { // 均衡负载
+					instance.loadbalance = loadbalance.toString();
+				}
+				instance.initialization(dubboi_path); // 加载配置文件
+				instance.initDubbo(); // 初始化dubbo
 			}
 		}
-		instance.restfulEnable = restfulEnable;
 		return instance;
 	}
 	
@@ -253,6 +288,20 @@ public class DubboI_Configuration {
 				registerRpcServer(packageName);
 			}
 		}
+	}
+	
+	/**
+	 * 根据字符串获取负载均衡的枚举对象
+	 * @param name
+	 * @return
+	 */
+	public static Loadbalance getLoadbalance(String name) {
+		if (!Strings.isNullOrEmpty(name)) {
+			try {
+				return Loadbalance.valueOf(name);
+			} catch(IllegalArgumentException e) {}
+		}
+		return null;
 	}
 	
 	/**

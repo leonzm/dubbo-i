@@ -15,6 +15,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.config.spring.ServiceBean;
 import com.google.common.base.Strings;
 import com.pengshu.dubbo_i.conf.DubboI_Configuration;
+import com.pengshu.dubbo_i.conf.DubboI_Configuration.Loadbalance;
 import com.pengshu.dubbo_i.util.class_scan.DefaultClassScanner;
 
 /**
@@ -82,6 +83,12 @@ public class RpcServer implements BeanPostProcessor {
 	            	 serviceConfig.setProtocols(Arrays.asList(DubboI_Configuration.instance.protocolDubbo, DubboI_Configuration.instance.protocolRestful)); // 开启dubbo服务、restful服务
 	             } else {
 	            	 serviceConfig.setProtocol(DubboI_Configuration.instance.protocolDubbo); // 开启dubbo服务
+	             }
+	             Loadbalance loadbalance = DubboI_Configuration.getLoadbalance(service.loadbalance());
+	             if (loadbalance != null) { // 均衡负载，服务提供方
+	            	 serviceConfig.setLoadbalance(loadbalance.toString());
+	             } else {
+	            	 serviceConfig.setLoadbalance(DubboI_Configuration.instance.loadbalance);
 	             }
 	             String version = service.version();
 	             if (version != null && !version.trim().isEmpty()) { // 服务版本，注解中的版本可覆盖properties文件中的版本
