@@ -42,7 +42,7 @@ public class JettyRpcHandler extends AbstractHandler {
         final Response responseData = new Response();
         Object data = null;
         try {
-            if (!request.getContentType().startsWith("application/json")) { // application/json; charset=UTF-8
+            if (request.getContentType() == null || !request.getContentType().startsWith("application/json")) { // application/json; charset=UTF-8
                 throw new IllegalArgumentException("request content type must be application/json,your request content type is [" + request.getContentType() + "]");
             }
 
