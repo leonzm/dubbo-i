@@ -51,6 +51,7 @@ public class DubboI_Configuration {
 	public static final int CONNECTIONS_DEFAULT = 0; // 对每个提供者的最大连接数，0表示无限制
 	public static final int EXECUTES_DEFAULT = 0; // 服务提供者每服务每方法最大可并行执行请求数，0表示无限制
 	public static final int ACTIVES_DEFAULT = 0; // 每服务消费者每服务每方法最大并发调用数，0表示无限制
+	public static final int RETRIES_DEFAULT = 2; // Failover容错模式中，远程服务调用重试次数，不包括第一次调用，不需要重试请设为0 
 	
 	// 均衡负载，可选值：random,roundrobin,leastactive，分别表示：随机，轮循，最少活跃调用
 	public static enum Loadbalance {   
@@ -109,6 +110,7 @@ public class DubboI_Configuration {
 	private int connections = CONNECTIONS_DEFAULT; // 对每个提供者的最大连接数
 	private int executes = EXECUTES_DEFAULT; // 服务提供者每服务每方法最大可并行执行请求数
 	private int actives = ACTIVES_DEFAULT; // 每服务消费者每服务每方法最大并发调用数
+	private int retries = RETRIES_DEFAULT; // 失败最大的重试次数，不含第一次调用
 	
 	// ///////////////////////////////////// get //////////////////////////////////////////
 	public String getApplicationName() {
@@ -159,6 +161,10 @@ public class DubboI_Configuration {
 		return actives;
 	}
 
+	public int getRetries() {
+		return retries;
+	}
+	
 	// ///////////////////////////////////// initialization //////////////////////////////////////////
 	private DubboI_Configuration initialization(String dubboi_path) throws IOException, URISyntaxException {
 		Properties dubboi_properties = new Properties();
@@ -249,6 +255,12 @@ public class DubboI_Configuration {
 			actives = Integer.parseInt(strActives);
 		} else {
 			actives = ACTIVES_DEFAULT;
+		}
+		String strRetries = dubboi_properties.getProperty("dubboi.retries");
+		if (strRetries != null && !strRetries.trim().isEmpty() && strRetries.matches("\\d+")) {
+			retries = Integer.parseInt(strRetries);
+		} else {
+			retries = RETRIES_DEFAULT;
 		}
 		// **** 选填 **** //
 		

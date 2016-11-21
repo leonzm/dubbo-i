@@ -29,10 +29,10 @@ public class RpcGenericService {
 	
 	// ///////////////////////////////////// Create //////////////////////////////////////////
 	public static RpcGenericService Create(String serviceName, String version) throws RpcServiceException {
-		return Create(serviceName, version, DubboI_Configuration.instance.getLoadbalance(), DubboI_Configuration.instance.getConnections(), DubboI_Configuration.instance.getAccepts());
+		return Create(serviceName, version, DubboI_Configuration.instance.getLoadbalance(), DubboI_Configuration.instance.getConnections(), DubboI_Configuration.instance.getAccepts(), DubboI_Configuration.instance.getRetries());
 	}
 	
-	public static RpcGenericService Create(String serviceName, String version, String loadbalance, int connections, int actives) throws RpcServiceException {
+	public static RpcGenericService Create(String serviceName, String version, String loadbalance, int connections, int actives, int retries) throws RpcServiceException {
 		if (DubboI_Configuration.instance == null) {
 			throw new RpcServiceException("还未初始化Dubbo配置");
 		}
@@ -60,6 +60,9 @@ public class RpcGenericService {
 			}
 			if (actives >= 0) { // 每服务消费者每服务每方法最大并发调用数
 				reference.setActives(actives);
+			}
+			if (retries >= 0) { // 远程服务调用重试次数，不包括第一次调用，不需要重试请设为0
+				reference.setRetries(retries);
 			}
 			reference.setLazy(true); // 延迟连接，用于减少长连接数，当有调用发起时，再创建长连接
 			reference.setGeneric(true); // 声明为泛化接口
