@@ -46,6 +46,8 @@ public class DubboI_Configuration {
 	public static final int PROTOCOL_RESTFUL_DEFAULT_THREADS = 200;
 	public static final boolean PROTOCOL_RESTFUL_DEFAULT_ENABLE = true;
 	
+	public static final String LOANBALANCE_DEFAULT = Loadbalance.random.toString();
+	
 	// 均衡负载，可选值：random,roundrobin,leastactive，分别表示：随机，轮循，最少活跃调用
 	public static enum Loadbalance {   
 		random, roundrobin, leastactive
@@ -149,6 +151,7 @@ public class DubboI_Configuration {
 			LOGGER.info(k + "=" + v);
 		});
 
+		// **** 必填 **** //
 		applicationName = dubboi_properties.getProperty("dubboi.application");
 		if (applicationName == null || applicationName.trim().isEmpty()) {
 			LOGGER.error("application配置不能为空:dubboi.application");
@@ -191,15 +194,15 @@ public class DubboI_Configuration {
 			LOGGER.error("version配置不能为空:dubboi.version");
 			System.exit(-1);
 		}
+		// **** 必填 **** //
+		
+		// **** 选填 **** //
 		loadbalance = dubboi_properties.getProperty("dubboi.loadbalance");
-		if (loadbalance == null || loadbalance.trim().isEmpty()) {
-			LOGGER.error("loadbalance配置不能为空:dubboi.loadbalance");
-			System.exit(-1);
+		if (loadbalance != null && !loadbalance.trim().isEmpty() && getLoadbalance(loadbalance) != null) {
+		} else {
+			loadbalance = LOANBALANCE_DEFAULT;
 		}
-		if (getLoadbalance(loadbalance) == null) {
-			LOGGER.error("dubbo loadbalance配置必须是：random 或 roundrobin 或 leastactive");
-			System.exit(-1);
-		}
+		// **** 选填 **** //
 		
 		return this;
 	}
