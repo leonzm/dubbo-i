@@ -54,7 +54,7 @@ public class RpcGenericService {
 			if (loadbalance != null) { // 负载均衡，服务消费方
 				reference.setLoadbalance(loadbalance.toString());
 			} else {
-				reference.setLoadbalance(Loadbalance.random.toString());
+				reference.setLoadbalance(DubboI_Configuration.instance.getLoadbalance());
 			}
 			reference.setGeneric(true); // 声明为泛化接口
 			

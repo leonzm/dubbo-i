@@ -55,7 +55,6 @@ public class DubboI_Configuration {
 	public RegistryConfig registry; // 当前应用配置
 	public ProtocolConfig protocolDubbo; // 服务提供者协议配置（dubbo）
 	public ProtocolConfig protocolRestful; // 服务提供者协议配置（restful）
-	public String loadbalance = Loadbalance.random.toString(); // 组在均衡，默认使用random
 	
 	public static DubboI_Configuration instance;
 	
@@ -79,38 +78,10 @@ public class DubboI_Configuration {
 	 * @throws URISyntaxException
 	 */
 	public static DubboI_Configuration newInstance(String dubboi_path, boolean restfulEnable) throws IOException, URISyntaxException {
-		return DubboI_Configuration.newInstance(dubboi_path, restfulEnable, Loadbalance.random);
-	}
-	
-	/**
-	 * 初始化DubboI配置
-	 * @param dubboi_path dubboi配置文件路径
-	 * @param loadbalance 服务端的均衡负载
-	 * @return
-	 * @throws IOException
-	 * @throws URISyntaxException
-	 */
-	public static DubboI_Configuration newInstance(String dubboi_path, Loadbalance loadbalance) throws IOException, URISyntaxException {
-		return DubboI_Configuration.newInstance(dubboi_path, PROTOCOL_RESTFUL_DEFAULT_ENABLE, loadbalance);
-	}
-	
-	/**
-	 * 初始化DubboI配置
-	 * @param dubboi_path dubboi配置文件路径
-	 * @param restfulEnable 是否开启restful服务，默认为开启
-	 * @param loadbalance 服务端的均衡负载
-	 * @return
-	 * @throws IOException
-	 * @throws URISyntaxException
-	 */
-	public static DubboI_Configuration newInstance(String dubboi_path, boolean restfulEnable, Loadbalance loadbalance) throws IOException, URISyntaxException {
 		synchronized(DubboI_Configuration.class) {
 			if (instance == null) {
 				instance = new DubboI_Configuration();
 				instance.restfulEnable = restfulEnable; // restful
-				if (loadbalance != null) { // 均衡负载
-					instance.loadbalance = loadbalance.toString();
-				}
 				instance.initialization(dubboi_path); // 加载配置文件
 				instance.initDubbo(); // 初始化dubbo
 			}
@@ -127,6 +98,7 @@ public class DubboI_Configuration {
 	private Integer restfulPort = 9090;
 	private boolean restfulEnable;
 	private String version;
+	private String loadbalance;
 	
 	// ///////////////////////////////////// get //////////////////////////////////////////
 	public String getApplicationName() {
@@ -157,6 +129,10 @@ public class DubboI_Configuration {
 		return version;
 	}
 	
+	public String getLoadbalance() {
+		return loadbalance;
+	}
+
 	// ///////////////////////////////////// initialization //////////////////////////////////////////
 	private DubboI_Configuration initialization(String dubboi_path) throws IOException, URISyntaxException {
 		Properties dubboi_properties = new Properties();
@@ -213,6 +189,15 @@ public class DubboI_Configuration {
 		version = dubboi_properties.getProperty("dubboi.version");
 		if (version == null || version.trim().isEmpty()) {
 			LOGGER.error("version配置不能为空:dubboi.version");
+			System.exit(-1);
+		}
+		loadbalance = dubboi_properties.getProperty("dubboi.loadbalance");
+		if (loadbalance == null || loadbalance.trim().isEmpty()) {
+			LOGGER.error("loadbalance配置不能为空:dubboi.loadbalance");
+			System.exit(-1);
+		}
+		if (getLoadbalance(loadbalance) == null) {
+			LOGGER.error("dubbo loadbalance配置必须是：random 或 roundrobin 或 leastactive");
 			System.exit(-1);
 		}
 		
@@ -291,7 +276,7 @@ public class DubboI_Configuration {
 	}
 	
 	/**
-	 * 根据字符串获取负载均衡的枚举对象
+	 * 根据字符串获取负载均衡的枚举对象，如果字符串不合乎该枚举，返回null
 	 * @param name
 	 * @return
 	 */

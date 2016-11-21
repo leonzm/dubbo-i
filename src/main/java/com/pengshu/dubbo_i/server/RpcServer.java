@@ -88,7 +88,7 @@ public class RpcServer implements BeanPostProcessor {
 	             if (loadbalance != null) { // 均衡负载，服务提供方
 	            	 serviceConfig.setLoadbalance(loadbalance.toString());
 	             } else {
-	            	 serviceConfig.setLoadbalance(DubboI_Configuration.instance.loadbalance);
+	            	 serviceConfig.setLoadbalance(DubboI_Configuration.instance.getLoadbalance());
 	             }
 	             String version = service.version();
 	             if (version != null && !version.trim().isEmpty()) { // 服务版本，注解中的版本可覆盖properties文件中的版本
