@@ -55,9 +55,10 @@ public class RpcGenericService {
 			} else {
 				reference.setLoadbalance(DubboI_Configuration.instance.getLoadbalance());
 			}
-			if (connections >= 0) {
+			if (connections >= 0) { // 服务的最大连接数
 				reference.setConnections(connections);
 			}
+			reference.setLazy(true); // 延迟连接，用于减少长连接数，当有调用发起时，再创建长连接
 			reference.setGeneric(true); // 声明为泛化接口
 			
 			references.put(k, reference);
