@@ -102,6 +102,18 @@ public class RpcServer implements BeanPostProcessor {
 	             } else {
 	            	 serviceConfig.setConnections(DubboI_Configuration.instance.getConnections());
 	             }
+	             int executes = service.executes();
+	             if (executes > 0) { // 注解中的配置
+	            	 serviceConfig.setExecutes(executes); 
+	             } else {
+	            	 serviceConfig.setExecutes(DubboI_Configuration.instance.getExecutes());
+	             }
+	             int actives = service.actives();
+	             if (actives > 0) { // 注解中的配置
+	            	 serviceConfig.setActives(actives);
+	             } else {
+	            	 serviceConfig.setActives(DubboI_Configuration.instance.getActives());
+	             }
 	             
 	             rpcServiceVersionMap.put(bean.getClass().getInterfaces()[0].getName(), version);
 	             serviceConfig.setRef(bean);

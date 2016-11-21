@@ -47,8 +47,10 @@ public class DubboI_Configuration {
 	public static final boolean PROTOCOL_RESTFUL_DEFAULT_ENABLE = true;
 	
 	public static final String LOANBALANCE_DEFAULT = Loadbalance.random.toString(); // 默认负载均衡为random
-	public static final int ACCEPTS_DEFAULT = 0; // 服务端最大连接数，0表示无限制
-	public static final int CONNECTIONS_DEFAULT = 0; // 服务端单个service的最大连接数，0表示无限制
+	public static final int ACCEPTS_DEFAULT = 0; // 服务提供方最大可接受连接数，0表示无限制
+	public static final int CONNECTIONS_DEFAULT = 0; // 对每个提供者的最大连接数，0表示无限制
+	public static final int EXECUTES_DEFAULT = 0; // 服务提供者每服务每方法最大可并行执行请求数，0表示无限制
+	public static final int ACTIVES_DEFAULT = 0; // 每服务消费者每服务每方法最大并发调用数，0表示无限制
 	
 	// 均衡负载，可选值：random,roundrobin,leastactive，分别表示：随机，轮循，最少活跃调用
 	public static enum Loadbalance {   
@@ -103,8 +105,10 @@ public class DubboI_Configuration {
 	private boolean restfulEnable; // restful是否启用
 	private String version; // 应用程序版本
 	private String loadbalance = LOANBALANCE_DEFAULT; // 应用程序均衡负载方式
-	private int accepts = ACCEPTS_DEFAULT; // 服务端最大连接数
-	private int connections = CONNECTIONS_DEFAULT; // 单个服务最大连接数
+	private int accepts = ACCEPTS_DEFAULT; // 服务提供方最大可接受连接数
+	private int connections = CONNECTIONS_DEFAULT; // 对每个提供者的最大连接数
+	private int executes = EXECUTES_DEFAULT; // 服务提供者每服务每方法最大可并行执行请求数
+	private int actives = ACTIVES_DEFAULT; // 每服务消费者每服务每方法最大并发调用数
 	
 	// ///////////////////////////////////// get //////////////////////////////////////////
 	public String getApplicationName() {
@@ -145,6 +149,14 @@ public class DubboI_Configuration {
 
 	public int getConnections() {
 		return connections;
+	}
+
+	public int getExecutes() {
+		return executes;
+	}
+	
+	public int getActives() {
+		return actives;
 	}
 
 	// ///////////////////////////////////// initialization //////////////////////////////////////////
@@ -225,6 +237,18 @@ public class DubboI_Configuration {
 			connections = Integer.parseInt(strConnections);
 		} else {
 			connections = CONNECTIONS_DEFAULT;
+		}
+		String strExecutes = dubboi_properties.getProperty("dubboi.executes");
+		if (strExecutes != null && !strExecutes.trim().isEmpty() && strExecutes.matches("\\d+")) {
+			executes = Integer.parseInt(strExecutes);
+		} else {
+			executes = EXECUTES_DEFAULT;
+		}
+		String strActives = dubboi_properties.getProperty("dubboi.actives");
+		if (strActives != null && !strActives.trim().isEmpty() && strActives.matches("\\d+")) {
+			actives = Integer.parseInt(strActives);
+		} else {
+			actives = ACTIVES_DEFAULT;
 		}
 		// **** 选填 **** //
 		
