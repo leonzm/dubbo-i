@@ -32,6 +32,10 @@ public class RpcGenericService {
 		return Create(serviceName, version, "", DubboI_Configuration.instance.getLoadbalance(), DubboI_Configuration.instance.getConnections(), DubboI_Configuration.instance.getAccepts(), DubboI_Configuration.instance.getRetries(), DubboI_Configuration.instance.getTimeout());
 	}
 	
+	public static RpcGenericService Create(String serviceName, String version, String group) throws RpcServiceException {
+		return Create(serviceName, version, group, DubboI_Configuration.instance.getLoadbalance(), DubboI_Configuration.instance.getConnections(), DubboI_Configuration.instance.getAccepts(), DubboI_Configuration.instance.getRetries(), DubboI_Configuration.instance.getTimeout());
+	}
+	
 	public static RpcGenericService Create(String serviceName, String version, String group, String loadbalance, int connections, int actives, int retries, int timeout) throws RpcServiceException {
 		if (DubboI_Configuration.instance == null) {
 			throw new RpcServiceException("还未初始化Dubbo配置");
