@@ -52,7 +52,7 @@ public class RpcGenericService {
 			reference = new ReferenceConfig<GenericService>(); // 该实例很重量，里面封装了所有与注册中心及服务提供方连接，请缓存
 			reference.setApplication(DubboI_Configuration.instance.application);
 			reference.setRegistry(DubboI_Configuration.instance.registry);
-			reference.setProtocol(DubboI_Configuration.PROTOCOL_DUBBO);
+			reference.setProtocol(DubboI_Configuration.PROTOCOL_DUBBO); // 只调用指定协议的服务提供方，其它协议忽略
 			reference.setInterface(serviceName); // 弱类型接口名 
 			reference.setVersion(version);
 			reference.setGroup(group);
