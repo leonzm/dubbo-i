@@ -119,17 +119,91 @@
   </dependencies>
 
   <build>
-    <plugins>
-      <!--编译版本-->
-	  <plugin>
-		<artifactId>maven-compiler-plugin</artifactId>
-		<version>2.3.1</version>
-		<configuration>
-			<source>1.8</source>
-			<target>1.8</target>
-		</configuration>
-	  </plugin>
-    </plugins>
+	  <finalName>${project.artifactId}</finalName>
+	  <resources>
+	      <resource>
+	          <directory>src/main/resources</directory>
+	          <filtering>false</filtering>
+	      </resource>
+	  </resources>
+	
+	  <plugins>
+	      <plugin>
+	          <groupId>org.apache.maven.plugins</groupId>
+	          <artifactId>maven-compiler-plugin</artifactId>
+	          <version>2.3.2</version>
+	          <configuration>
+	              <source>1.8</source>
+	              <target>1.8</target>
+	              <encoding>UTF-8</encoding>
+	          </configuration>
+	      </plugin>
+	      <plugin>
+	          <groupId>org.apache.maven.plugins</groupId>
+	          <artifactId>maven-source-plugin</artifactId>
+	          <version>2.4</version>
+	          <executions>
+	              <execution>
+	                  <phase>package</phase>
+	                  <goals>
+	                      <goal>jar-no-fork</goal>
+	                  </goals>
+	              </execution>
+	          </executions>
+	      </plugin>
+	  </plugins>
   </build>
+  
+  <profiles>
+	  <profile>
+	      <id>develop</id>
+	      <properties>
+	          <dversion>-SNAPSHOT</dversion>
+	      </properties>
+	      <activation>
+	          <activeByDefault>true</activeByDefault>
+	      </activation>
+	      <distributionManagement>
+	          <snapshotRepository>
+	              <id>snapshots</id>
+	              <name>Snapshots</name>
+	              <url>http://192.168.1.106:8081/nexus/content/repositories/snapshots</url>
+	          </snapshotRepository>
+	      </distributionManagement>
+	  </profile>
+	
+	  <profile>
+	      <id>release</id>
+	      <properties>
+	          <dversion/>
+	
+	      </properties>
+	      <distributionManagement>
+	          <repository>
+	              <id>releases</id>
+	              <name>Releases</name>
+	              <url>http://192.168.1.106:8081/nexus/content/repositories/releases</url>
+	          </repository>
+	      </distributionManagement>
+	      <build>
+	          <plugins>
+	              <!-- Source -->
+	                <plugin>
+	                    <groupId>org.apache.maven.plugins</groupId>
+	                    <artifactId>maven-source-plugin</artifactId>
+	                    <version>2.4</version>
+	                    <executions>
+	                        <execution>
+	                            <phase>package</phase>
+	                            <goals>
+	                                <goal>jar-no-fork</goal>
+	                            </goals>
+	                        </execution>
+	                    </executions>
+	                </plugin>
+	            </plugins>
+	        </build>
+	    </profile>
+	</profiles>
   
 </project>
