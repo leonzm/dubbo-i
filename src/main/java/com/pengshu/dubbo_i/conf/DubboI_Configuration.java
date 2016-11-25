@@ -108,7 +108,7 @@ public class DubboI_Configuration {
 	private boolean restfulEnable; // restful是否启用
 	private String version; // 应用程序版本
 	private String loadbalance = LOANBALANCE_DEFAULT; // 应用程序均衡负载方式
-	private int accepts = ACCEPTS_DEFAULT; // 服务提供方最大可接受连接数
+	private int accepts = ACCEPTS_DEFAULT; //  服务端最大连接数，对整个应用程序而言
 	private int connections = CONNECTIONS_DEFAULT; // 对每个提供者的最大连接数
 	private int executes = EXECUTES_DEFAULT; // 服务提供者每服务每方法最大可并行执行请求数
 	private int actives = ACTIVES_DEFAULT; // 每服务消费者每服务每方法最大并发调用数
@@ -323,7 +323,7 @@ public class DubboI_Configuration {
 		registry.setAddress(zkAddress.toString());
 		
 		protocolDubbo = new ProtocolConfig(PROTOCOL_DUBBO, dubboPort);
-		protocolDubbo.setAccepts(accepts); // 服务端最大连接数
+		protocolDubbo.setAccepts(accepts); // 服务端最大连接数，对整个应用程序而言
 		
 		protocolRestful = new ProtocolConfig(PROTOCOL_RESTFUL, restfulPort);
 		protocolRestful.setServer(PROTOCOL_RESTFUL_SERVER);

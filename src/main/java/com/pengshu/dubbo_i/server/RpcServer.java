@@ -123,6 +123,7 @@ public class RpcServer implements BeanPostProcessor {
 	             } else {
 	            	 serviceConfig.setRetries(DubboI_Configuration.instance.getRetries());
 	             }
+	             // 服务提供方的超时时间，推荐在消费端控制调用的超时时间
 	             int timeout = service.timeout();
 	             if (timeout > 0) { // 注解中的配置
 	            	 serviceConfig.setTimeout(timeout);
