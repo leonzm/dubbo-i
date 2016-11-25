@@ -100,6 +100,7 @@ public class DubboI_Configuration {
 	private DubboI_Configuration() {}
 	
 	private String applicationName; // 应用程序名
+	private String owner; // 应用负责人，用于服务治理，请填写负责人公司邮箱前缀
 	private String zookeeper; // zk集群地址
 	//private String kafka;
 	private Integer dubboPort; // dubbo协议端口
@@ -123,6 +124,10 @@ public class DubboI_Configuration {
 		return zookeeper;
 	}
 
+	public String getOwner() {
+		return owner;
+	}
+	
 	/*public String getKafka() {
 		return kafka;
 	}*/
@@ -193,6 +198,12 @@ public class DubboI_Configuration {
 			LOGGER.error("application配置不能为空:dubboi.application");
 			System.exit(-1);
 		}
+		owner = dubboi_properties.getProperty("dubboi.owner");
+		if (owner == null || owner.trim().isEmpty()) {
+			LOGGER.error("owner配置不能为空:dubboi.owner");
+			System.exit(-1);
+		}
+		owner = owner.replaceAll("\\s*", "").trim(); // 有空格会报错
 		zookeeper = dubboi_properties.getProperty("dubboi.zookeeper");
 		if (zookeeper == null || zookeeper.trim().isEmpty()) {
 			LOGGER.error("zookeeper配置不能为空:dubboi.zookeeper");
@@ -282,6 +293,7 @@ public class DubboI_Configuration {
 	private DubboI_Configuration initDubbo() {
 		application = new ApplicationConfig();
 		application.setName(applicationName);
+		application.setOwner(owner);
 		
 		registry = new RegistryConfig();
 		// 由于客户端配置zk的形式是：123.456.789.0:2181或123.456.789.0:2181:123.456.789.1:2181,123.456.789.2:2181，
