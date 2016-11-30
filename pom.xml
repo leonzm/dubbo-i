@@ -4,7 +4,7 @@
 
   <groupId>com.pengshu</groupId>
   <artifactId>dubbo-i</artifactId>
-  <version>V1.00.01R161130</version>
+  <version>V1.00.02R161130</version>
   <packaging>jar</packaging>
 
   <name>dubbo-i</name>

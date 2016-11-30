@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.config.spring.ServiceBean;
 import com.google.common.base.Strings;
+import com.pengshu.dubbo_i.annotation.RpcService;
 import com.pengshu.dubbo_i.conf.DubboI_Configuration;
 import com.pengshu.dubbo_i.conf.DubboI_Configuration.Loadbalance;
 import com.pengshu.dubbo_i.util.class_scan.DefaultClassScanner;
@@ -25,6 +26,11 @@ import com.pengshu.dubbo_i.util.class_scan.DefaultClassScanner;
 public class RpcServer implements BeanPostProcessor {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(RpcServer.class);
+	
+	// RpcService注解中restfulEnable的配置
+	public static enum RestfulEnable {  
+		defaul, use, notUse
+	}
 	
 	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
@@ -76,11 +82,22 @@ public class RpcServer implements BeanPostProcessor {
 	             serviceConfig.setApplication(DubboI_Configuration.instance.application);
 	             serviceConfig.setOwner(DubboI_Configuration.instance.getOwner());
 	             serviceConfig.setRegistry(DubboI_Configuration.instance.registry);
-	             if (DubboI_Configuration.instance.isRestfulEnable()) {
-	            	 serviceConfig.setProtocols(Arrays.asList(DubboI_Configuration.instance.protocolDubbo, DubboI_Configuration.instance.protocolRestful)); // 开启dubbo服务、restful服务
-	             } else {
-	            	 serviceConfig.setProtocol(DubboI_Configuration.instance.protocolDubbo); // 开启dubbo服务
+	             
+	             RpcService rpcService = bean.getClass().getAnnotation(RpcService.class); // 辅助dubbo的Service注解，提供额外的配置
+	             if (rpcService != null && rpcService.restfulEnable() != RestfulEnable.defaul) { // 该服务配置了RpcService注解，并且有单个restful的配置
+	            	 if (rpcService.restfulEnable() == RestfulEnable.use) {
+	            		 serviceConfig.setProtocols(Arrays.asList(DubboI_Configuration.instance.protocolDubbo, DubboI_Configuration.instance.protocolRestful)); // 开启dubbo服务、restful服务
+	            	 } else if (rpcService.restfulEnable() == RestfulEnable.notUse) {
+	            		 serviceConfig.setProtocol(DubboI_Configuration.instance.protocolDubbo); // 开启dubbo服务
+	            	 }
+	             } else { // 无单个restful配置，采用配置文件中的配置
+	            	 if (DubboI_Configuration.instance.isRestfulEnable()) {
+		            	 serviceConfig.setProtocols(Arrays.asList(DubboI_Configuration.instance.protocolDubbo, DubboI_Configuration.instance.protocolRestful)); // 开启dubbo服务、restful服务
+		             } else {
+		            	 serviceConfig.setProtocol(DubboI_Configuration.instance.protocolDubbo); // 开启dubbo服务
+		             }
 	             }
+	             
 	             String version = service.version();
 	             if (version != null && !version.trim().isEmpty()) { // 服务版本，注解中的版本可覆盖properties文件中的版本
 	             } else {
