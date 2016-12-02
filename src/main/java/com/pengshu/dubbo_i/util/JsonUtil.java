@@ -1,5 +1,6 @@
 package com.pengshu.dubbo_i.util;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +51,23 @@ public class JsonUtil {
         }
         return obj;
     }
+    
+    /**
+     * 将 json 字符串转为 Java 对象
+     * @param json
+     * @param typeReference
+     * @return
+     */
+    public static <T> T fromJson(String json, TypeReference<T> typeReference) {
+    	T obj;
+        try {
+            obj = objectMapper.readValue(json, typeReference);
+        } catch (Exception e) {
+            logger.error("InputStream 转 Java 出错！", e);
+            throw new RuntimeException(e);
+        }
+        return obj;
+    }
 
     /**
      * 将 InputStream 字符串转为 Java 对象
@@ -68,5 +86,5 @@ public class JsonUtil {
         }
         return obj;
     }
-
+    
 }
