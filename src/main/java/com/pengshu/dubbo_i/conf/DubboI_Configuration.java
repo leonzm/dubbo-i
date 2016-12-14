@@ -54,9 +54,9 @@ public class DubboI_Configuration {
 	public static final int RETRIES_DEFAULT = 2; // Failover容错模式中，远程服务调用重试次数，不包括第一次调用，不需要重试请设为0 
 	public static final int TIMEOUT_DEFAULT = 0; // 服务方法调用超时时间(毫秒)，0表示无限制
 	
-	// 均衡负载，可选值：random,roundrobin,leastactive，分别表示：随机，轮循，最少活跃调用
+	// 均衡负载，可选值：random,roundrobin,leastactive,consistenthash，分别表示：随机，轮循，最少活跃调用，一致性哈希
 	public static enum Loadbalance {   
-		random, roundrobin, leastactive
+		random, roundrobin, leastactive, consistenthash
 	}
 	
 	public ApplicationConfig application; // 当前应用配置
