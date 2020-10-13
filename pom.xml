@@ -12,7 +12,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <junit.version>4.11</junit.version>
+    <junit.version>4.13.1</junit.version>
     <slf4j.api.version>1.7.12</slf4j.api.version>
     <logback.classic.version>1.0.13</logback.classic.version>
     <spring.version>4.1.6.RELEASE</spring.version>
